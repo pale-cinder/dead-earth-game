@@ -9,6 +9,31 @@ using UnityEngine.AI;
 public class AIWaypointNetworkEditor : Editor
 {
 
+    //Custom inspector
+    //Returns int the value that has been set by the user
+
+    public override void OnInspectorGUI()
+    {
+        
+       base.OnInspectorGUI();
+
+        AIWaypointNetwork network = (AIWaypointNetwork)target;
+
+        network.DisplayMode = (PathDisplayMode)EditorGUILayout.EnumPopup("Display Mode", network.DisplayMode);
+
+
+        //Path sliders 
+        if (network.DisplayMode == PathDisplayMode.Path)
+        {
+
+            network.UIStart = EditorGUILayout.IntSlider("Waypoint Start", network.UIStart, 0, network.Waypoints.Count - 1);
+            network.UIEnd   = EditorGUILayout.IntSlider("Waypoint End", network.UIEnd, 0, network.Waypoints.Count - 1);
+
+            DrawDefaultInspector();
+        }
+    }
+
+
     private void OnSceneGUI()
     {
         AIWaypointNetwork network = (AIWaypointNetwork)target;
@@ -21,7 +46,7 @@ public class AIWaypointNetworkEditor : Editor
 
         if (network.DisplayMode == PathDisplayMode.Connections)
         {
-            //draw a polyline
+            //Draw a polyline
             Vector3[] linePoints = new Vector3[network.Waypoints.Count + 1];
 
             for (int i = 0; i <= network.Waypoints.Count; i++)
@@ -39,16 +64,21 @@ public class AIWaypointNetworkEditor : Editor
             Handles.DrawPolyLine(linePoints);
         }
         else
-        if (network.DisplayMode==PathDisplayMode.Path)
+        if (network.DisplayMode == PathDisplayMode.Path)
         {
             NavMeshPath path = new NavMeshPath();
 
-            Vector3 from = network.Waypoints[network.UIStart].position;
-            Vector3 to = network.Waypoints[network.UIEnd].position;
+            if (network.Waypoints[network.UIStart] != null && network.Waypoints[network.UIEnd] != null)
+            {
 
-            NavMesh.CalculatePath(from, to, NavMesh.AllAreas, path);
-            Handles.color=Color.yellow;
-            Handles.DrawPolyLine(path.corners);
+                Vector3 from = network.Waypoints[network.UIStart].position;
+                Vector3 to = network.Waypoints[network.UIEnd].position;
+
+                //Waypoints custom scene view setup        
+                NavMesh.CalculatePath(from, to, NavMesh.AllAreas, path);
+                Handles.color = Color.yellow;
+                Handles.DrawPolyLine(path.corners);
+            }
         }
     }
 }
