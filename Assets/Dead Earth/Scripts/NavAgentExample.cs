@@ -16,27 +16,53 @@ public class NavAgentExample : MonoBehaviour
     private NavMeshAgent _navAgent = null;
 
 
-	// Use this for initialization
-	void Start ()
+    // Use this for initialization
+    void Start()
     {
 
         _navAgent = GetComponent<NavMeshAgent>();
 
         if (WaypointNetwork == null) return;
 
-        //If we may got forgot assign the transform
+        SetNextDestination(false);
+    }
+        
 
-        if (WaypointNetwork.Waypoints[CurrentIndex] != null)
+        void SetNextDestination ( bool increment )
         {
-            _navAgent.destination = WaypointNetwork.Waypoints[CurrentIndex].position;
+            if (!WaypointNetwork) return;
+
+            //Check the value of increment bool
+            //If increment is True --> assign value of 1, another case --> value of 0
+
+            int incStep = increment ? 1 : 0;
+            Transform nextWaypointTransform = null;
+
+            //Keep incrementing until we find the loop
+
+            while (nextWaypointTransform==null)
+            {
+                int nextWaypoint = (CurrentIndex + incStep >= WaypointNetwork.Waypoints.Count) ? 0 : CurrentIndex + incStep;
+
+                nextWaypointTransform = WaypointNetwork.Waypoints[nextWaypoint];
+
+                if (nextWaypointTransform!=null)
+                {
+                    CurrentIndex = nextWaypoint;
+                    _navAgent.destination = nextWaypointTransform.position;
+                    return;
+                                       
+                }
+
+            }
+
+            CurrentIndex++;
+
+
+
         }
 
+	}
 
 
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
-}
+
