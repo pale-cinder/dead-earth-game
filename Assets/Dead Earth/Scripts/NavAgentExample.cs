@@ -10,6 +10,9 @@ public class NavAgentExample : MonoBehaviour
     //Inspector Assigned Variable
     public AIWaypointNetwork WaypointNetwork = null;
     public int CurrentIndex = 0;
+    public bool HasPath = false;
+    public bool PathPending = false;
+    public bool PathStale = false;
 
 
     //Private Members 
@@ -22,6 +25,7 @@ public class NavAgentExample : MonoBehaviour
 
         _navAgent = GetComponent<NavMeshAgent>();
 
+        // If not valid Waypoint Network has been assigned then return
         if (WaypointNetwork == null) return;
 
         SetNextDestination(false);
@@ -36,6 +40,7 @@ public class NavAgentExample : MonoBehaviour
             //If increment is True --> assign value of 1, another case --> value of 0
 
             int incStep = increment ? 1 : 0;
+
             Transform nextWaypointTransform = null;
 
             //Keep incrementing until we find the loop
@@ -56,13 +61,25 @@ public class NavAgentExample : MonoBehaviour
 
             }
 
-            CurrentIndex++;
-
-
-
         }
 
-	}
+    void Update()
+    {
+        HasPath = _navAgent.hasPath;
+        PathPending = _navAgent.pathPending;
+        PathStale = _navAgent.isPathStale;
+
+        if (HasPath && !PathPending)
+            SetNextDestination(true);
+
+       else
+
+            if (_navAgent.isPathStale)
+            SetNextDestination(false);
+
+    }
+
+}
 
 
 
