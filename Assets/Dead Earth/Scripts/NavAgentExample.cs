@@ -25,6 +25,11 @@ public class NavAgentExample : MonoBehaviour
 
         _navAgent = GetComponent<NavMeshAgent>();
 
+        /*
+         * _navAgent.UpdatePosition = false;
+         * _navAgent.updateRotation = false;
+         */
+
         // If not valid Waypoint Network has been assigned then return
         if (WaypointNetwork == null) return;
 
