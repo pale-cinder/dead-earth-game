@@ -13,7 +13,7 @@ public class NavAgentExample : MonoBehaviour
     public bool HasPath = false;
     public bool PathPending = false;
     public bool PathStale = false;
-
+    public NavMeshPathStatus PathStatus = NavMeshPathStatus.PathInvalid;
 
     //Private Members 
     private NavMeshAgent _navAgent = null;
@@ -41,45 +41,44 @@ public class NavAgentExample : MonoBehaviour
 
             int incStep = increment ? 1 : 0;
 
-            Transform nextWaypointTransform = null;
 
-            //Keep incrementing until we find the loop
+            // Calculate index of next waypoint
 
-            while (nextWaypointTransform==null)
-            {
-                int nextWaypoint = (CurrentIndex + incStep >= WaypointNetwork.Waypoints.Count) ? 0 : CurrentIndex + incStep;
+            // Transform nextWaypointTransform = null;
 
-                nextWaypointTransform = WaypointNetwork.Waypoints[nextWaypoint];
+            int nextWaypoint = (CurrentIndex + incStep >= WaypointNetwork.Waypoints.Count) ? 0 : CurrentIndex + incStep;
+            Transform nextWaypointTransform = WaypointNetwork.Waypoints[nextWaypoint];
 
-                if (nextWaypointTransform!=null)
-                {
-                    CurrentIndex = nextWaypoint;
-                    _navAgent.destination = nextWaypointTransform.position;
-                    return;
-                                       
-                }
-
-            }
-
+        //Keep incrementing until we find the loop
+        if (nextWaypointTransform != null)
+        {
+            // Update the current waypoint index, assign its position as the NavMeshAgents
+            // Destination and then return
+            CurrentIndex = nextWaypoint;
+            _navAgent.destination = nextWaypointTransform.position;
+            return;
         }
 
+        // We did not find a valid waypoint in the list for this iteration
+        CurrentIndex++;
+    }
+
+   
     void Update()
     {
+        // Copy NavMeshAgents state into inspector visible variables
         HasPath = _navAgent.hasPath;
         PathPending = _navAgent.pathPending;
         PathStale = _navAgent.isPathStale;
+        PathStatus = _navAgent.pathStatus;
 
-        if (HasPath && !PathPending)
+        // If we no path and one isn't pending then set the next waypoint  as the target
+        // otherwise if path is stale --> regenerate path
+        if ((!HasPath && !PathPending) || PathStatus == NavMeshPathStatus.PathInvalid /*|| PathStatus==NavMeshPathStatus.PathPartial*/)
             SetNextDestination(true);
-
-       else
-
-            if (_navAgent.isPathStale)
+        else
+        if (_navAgent.isPathStale)
             SetNextDestination(false);
 
     }
-
 }
-
-
-
