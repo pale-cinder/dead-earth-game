@@ -49,10 +49,10 @@ public class NavAgentExample : MonoBehaviour
 
             // Calculate index of next waypoint
 
-            // Transform nextWaypointTransform = null;
+            Transform nextWaypointTransform = null;
 
             int nextWaypoint = (CurrentIndex + incStep >= WaypointNetwork.Waypoints.Count) ? 0 : CurrentIndex + incStep;
-            Transform nextWaypointTransform = WaypointNetwork.Waypoints[nextWaypoint];
+            nextWaypointTransform = WaypointNetwork.Waypoints[nextWaypoint];
 
         //Keep incrementing until we find the loop
         if (nextWaypointTransform != null)
@@ -79,7 +79,10 @@ public class NavAgentExample : MonoBehaviour
 
         // If we no path and one isn't pending then set the next waypoint  as the target
         // otherwise if path is stale --> regenerate path
-        if ((!HasPath && !PathPending) || PathStatus == NavMeshPathStatus.PathInvalid /*|| PathStatus==NavMeshPathStatus.PathPartial*/)
+
+        //Playing with the Agent jump distance
+        if ((_navAgent.remainingDistance<=_navAgent.stoppingDistance && !PathPending) || PathStatus == NavMeshPathStatus.PathInvalid /*|| PathStatus==NavMeshPathStatus.PathPartial*/)
+            
             SetNextDestination(true);
         else
         if (_navAgent.isPathStale)
