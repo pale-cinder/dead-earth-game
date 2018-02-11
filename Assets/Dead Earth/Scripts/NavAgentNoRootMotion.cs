@@ -20,7 +20,7 @@ public class NavAgentNoRootMotion: MonoBehaviour
     //Private Members 
     private NavMeshAgent _navAgent = null;
     private Animator _animator = null;
-
+    private float _originalMaxSpeed = 0;
 
 
     // Use this for initialization
@@ -36,6 +36,10 @@ public class NavAgentNoRootMotion: MonoBehaviour
          */
 
         // If not valid Waypoint Network has been assigned then return
+
+        if (_navAgent)
+            _originalMaxSpeed = _navAgent.speed;
+
         if (WaypointNetwork == null) return;
 
         SetNextDestination(false);
@@ -75,7 +79,12 @@ public class NavAgentNoRootMotion: MonoBehaviour
 
    
     void Update()
-    {
+
+       {
+
+        int turnOnSpot;
+
+
         // Copy NavMeshAgents state into inspector visible variables
         HasPath = _navAgent.hasPath;
         PathPending = _navAgent.pathPending;
@@ -88,10 +97,28 @@ public class NavAgentNoRootMotion: MonoBehaviour
 
         Vector3 cross = Vector3.Cross(transform.forward, _navAgent.desiredVelocity.normalized);
         float horizontal = (cross.y < 0) ? -cross.magnitude : cross.magnitude;
-        horizontal = Mathf.Clamp(horizontal * 2.32f, -2.32f, 2.32f);
+        horizontal = Mathf.Clamp(horizontal * 4.32f, -2.32f, 2.32f);
+        
+        if (_navAgent.desiredVelocity.magnitude < 1.0f)
+        {
+            //stop navAgent from moving
+            //detect --> set turning animation to play
+            _navAgent.speed = 0.1f;
+            turnOnSpot = (int)Mathf.Sign(horizontal);
+         }
+        else
+        {
+            _navAgent.speed = _originalMaxSpeed;
+        }
+
 
         _animator.SetFloat("Horizontal", horizontal, 0.1f, Time.deltaTime);
         _animator.SetFloat("Vertical", _navAgent.desiredVelocity.magnitude, 0.1f, Time.deltaTime);
+
+        //turn left/right
+        _animator.SetInteger ("TurnOnSpot", int(turnOnSpot));
+
+
 
 
         // If we no path and one isn't pending then set the next waypoint  as the target
