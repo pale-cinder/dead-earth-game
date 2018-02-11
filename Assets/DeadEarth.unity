@@ -2094,6 +2094,7 @@ GameObject:
   - component: {fileID: 819018102}
   - component: {fileID: 819018105}
   - component: {fileID: 819018104}
+  - component: {fileID: 819018106}
   m_Layer: 0
   m_Name: Jill
   m_TagString: Untagged
@@ -2111,10 +2112,10 @@ Animator:
   m_GameObject: {fileID: 819018101}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 55bbd07b47086c542a96db0791278db4, type: 3}
-  m_Controller: {fileID: 9100000, guid: 1d9f6f61b330f7f4aaf63606d4ca56c2, type: 2}
+  m_Controller: {fileID: 9100000, guid: c22da28496497a84ba2fef34366b1ddb, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
-  m_ApplyRootMotion: 0
+  m_ApplyRootMotion: 1
   m_LinearVelocityBlending: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
@@ -2140,7 +2141,7 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 819018101}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d55f2f02134ff604ab9718ee88aa51f1, type: 3}
   m_Name: 
@@ -2190,6 +2191,29 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &819018106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 819018101}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5f61fbe3ba3b4a4dbb6817ecde89a45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  WaypointNetwork: {fileID: 1823156822}
+  CurrentIndex: 0
+  HasPath: 0
+  PathPending: 1
+  PathStale: 0
+  PathStatus: 2
+  JumpCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &821024701
 GameObject:
   m_ObjectHideFlags: 0

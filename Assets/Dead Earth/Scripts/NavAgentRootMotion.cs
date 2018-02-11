@@ -81,22 +81,16 @@ public class NavAgentRootMotion: MonoBehaviour
     void Update()
 
        {
-
        
-
-
         // Copy NavMeshAgents state into inspector visible variables
         HasPath = _navAgent.hasPath;
         PathPending = _navAgent.pathPending;
         PathStale = _navAgent.isPathStale;
         PathStatus = _navAgent.pathStatus;
 
-
+           
         
-
-
-
-        //if we dont have path
+        //if we dont have a path
         if ((_navAgent.remainingDistance<=_navAgent.stoppingDistance && !PathPending) || PathStatus == NavMeshPathStatus.PathInvalid /*|| PathStatus==NavMeshPathStatus.PathPartial*/)
             
             //set the destination to the next waypoint
@@ -104,11 +98,15 @@ public class NavAgentRootMotion: MonoBehaviour
         else
         if (_navAgent.isPathStale)
             SetNextDestination(false);
+       
+    }
 
 
-
+    private void OnAnimatorMove()
+    {
         
     }
+
 
     /*
     IEnumerator Jump(float duration)
