@@ -6,7 +6,7 @@ using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
 
-public class NavAgentNoRootMotion: MonoBehaviour
+public class NavAgentRootMotion: MonoBehaviour
 {
     //Inspector Assigned Variable
     public AIWaypointNetwork WaypointNetwork = null;
@@ -20,7 +20,7 @@ public class NavAgentNoRootMotion: MonoBehaviour
     //Private Members 
     private NavMeshAgent _navAgent = null;
     private Animator _animator = null;
-    private float _originalMaxSpeed = 0;
+   
 
 
     // Use this for initialization
@@ -37,8 +37,8 @@ public class NavAgentNoRootMotion: MonoBehaviour
 
         // If not valid Waypoint Network has been assigned then return
 
-        _navAgent.updatePosition = false;
-          //  _originalMaxSpeed = _navAgent.speed;
+        _navAgent.updateRotation = false;
+        
 
         if (WaypointNetwork == null) return;
 
@@ -82,7 +82,7 @@ public class NavAgentNoRootMotion: MonoBehaviour
 
        {
 
-      //  int turnOnSpot;
+       
 
 
         // Copy NavMeshAgents state into inspector visible variables
@@ -92,46 +92,7 @@ public class NavAgentNoRootMotion: MonoBehaviour
         PathStatus = _navAgent.pathStatus;
 
 
-        //how much to turn and how fast to go 
-
-
-        Vector3 cross = Vector3.Cross(transform.forward, _navAgent.desiredVelocity.normalized);
-        float horizontal = (cross.y < 0) ? -cross.magnitude : cross.magnitude;
-        horizontal = Mathf.Clamp(horizontal * 2.32f, -2.32f, 2.32f);
-
-        if (_navAgent.desiredVelocity.magnitude < 1.0f && Vector3.Angle(transform.forward, _navAgent.desiredVelocity) > 20.0f)
-        {
-            //stop navAgent from moving
-            //detect --> set turning animation to play
-            _navAgent.speed = 0.1f;
-          //  turnOnSpot = (int)Mathf.Sign(horizontal);
-         }
-
-        else
-        {
-            _navAgent.speed = _originalMaxSpeed;
-        }
-
-
-        _animator.SetFloat("Horizontal", horizontal, 0.1f, Time.deltaTime);
-        _animator.SetFloat("Vertical", _navAgent.desiredVelocity.magnitude, 0.1f, Time.deltaTime);
-
-        //turn left right
-      //  _animator.SetInteger ("TurnOnSpot", turnOnSpot);
-
-
-
-
-        // If we no path and one isn't pending then set the next waypoint  as the target
-        // otherwise if path is stale --> regenerate path
-
-        //Playing with the Agent jump distance
-       /* if (_navAgent.isOnOffMeshLink)
-        {
-            StartCoroutine(Jump(1.0f));
-            return;
-        }*/
-
+        
 
 
 
