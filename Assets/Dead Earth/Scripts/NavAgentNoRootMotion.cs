@@ -82,6 +82,18 @@ public class NavAgentNoRootMotion: MonoBehaviour
         PathStale = _navAgent.isPathStale;
         PathStatus = _navAgent.pathStatus;
 
+
+        //how much to turn and how fast to go 
+
+
+        Vector3 cross = Vector3.Cross(transform.forward, _navAgent.desiredVelocity.normalized);
+        float horizontal = (cross.y < 0) ? -cross.magnitude : cross.magnitude;
+        horizontal = Mathf.Clamp(horizontal * 2.32f, -2.32f, 2.32f);
+
+        _animator.SetFloat("Horizontal", horizontal, 0.1f, Time.deltaTime);
+        _animator.SetFloat("Vertical", _navAgent.desiredVelocity.magnitude, 0.1f, Time.deltaTime);
+
+
         // If we no path and one isn't pending then set the next waypoint  as the target
         // otherwise if path is stale --> regenerate path
 
@@ -93,6 +105,8 @@ public class NavAgentNoRootMotion: MonoBehaviour
         }*/
 
 
+
+
         //if we dont have path
         if ((_navAgent.remainingDistance<=_navAgent.stoppingDistance && !PathPending) || PathStatus == NavMeshPathStatus.PathInvalid /*|| PathStatus==NavMeshPathStatus.PathPartial*/)
             
@@ -102,6 +116,9 @@ public class NavAgentNoRootMotion: MonoBehaviour
         if (_navAgent.isPathStale)
             SetNextDestination(false);
 
+
+
+        
     }
 
 
