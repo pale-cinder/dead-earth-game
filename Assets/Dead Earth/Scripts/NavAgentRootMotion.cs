@@ -100,6 +100,14 @@ public class NavAgentRootMotion: MonoBehaviour
         _animator.SetFloat("Angle", _smoothAngle);
         _animator.SetFloat("Speed", speed, 0.1f, Time.deltaTime);
 
+        if (_navAgent.desiredVelocity.sqrMagnitude > Mathf.Epsilon)
+        {
+            Quaternion lookRotation = Quaternion.LookRotation(_navAgent.desiredVelocity, Vector3.up);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, 5.0f * Time.deltaTime);
+        }
+        
+
+
         
         //if we dont have a path
         if ((_navAgent.remainingDistance<=_navAgent.stoppingDistance && !PathPending) || PathStatus == NavMeshPathStatus.PathInvalid /*|| PathStatus==NavMeshPathStatus.PathPartial*/)
@@ -117,7 +125,7 @@ public class NavAgentRootMotion: MonoBehaviour
     // pop in up values before unity uses this values, calculate velocity --> set the final velocity to navAgent
     void OnAnimatorMove()
     {
-        transform.rotation = _animator.rootRotation;
+       // transform.rotation = _animator.rootRotation;
         _navAgent.velocity = _animator.deltaPosition / Time.deltaTime;
 
     }

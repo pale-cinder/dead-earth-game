@@ -249,7 +249,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Mount: {fileID: 1500131713}
-  Speed: 2
+  Speed: 5
 --- !u!1 &59048062
 GameObject:
   m_ObjectHideFlags: 0
