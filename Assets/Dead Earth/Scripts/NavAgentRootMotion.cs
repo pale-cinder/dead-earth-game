@@ -94,7 +94,7 @@ public class NavAgentRootMotion: MonoBehaviour
         float angle = Mathf.Atan2(localDesiredVelocity.x, localDesiredVelocity.z) * Mathf.Rad2Deg;
         _smoothAngle = Mathf.MoveTowardsAngle(_smoothAngle, angle, 80.0f * Time.deltaTime);
 
-        float speed = localDesiredVelocity.magnitude;
+        float speed = localDesiredVelocity.z;
 
 
         _animator.SetFloat("Angle", _smoothAngle);
