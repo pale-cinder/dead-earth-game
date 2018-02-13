@@ -249,7 +249,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Mount: {fileID: 1500131713}
-  Speed: 5
+  Speed: 2
 --- !u!1 &59048062
 GameObject:
   m_ObjectHideFlags: 0
@@ -2093,7 +2093,6 @@ GameObject:
   - component: {fileID: 819018103}
   - component: {fileID: 819018102}
   - component: {fileID: 819018105}
-  - component: {fileID: 819018104}
   - component: {fileID: 819018106}
   m_Layer: 0
   m_Name: Jill
@@ -2135,41 +2134,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &819018104
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 819018101}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d55f2f02134ff604ab9718ee88aa51f1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  WaypointNetwork: {fileID: 1823156822}
-  CurrentIndex: 0
-  HasPath: 0
-  PathPending: 0
-  PathStale: 0
-  PathStatus: 2
-  JumpCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 2
-      time: 0
-      value: 0
-      inSlope: 2
-      outSlope: 2
-      tangentMode: 0
-    - serializedVersion: 2
-      time: 1.0275879
-      value: -0.05991745
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 0
 --- !u!195 &819018105
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -2183,7 +2147,7 @@ NavMeshAgent:
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
-  m_StoppingDistance: 0
+  m_StoppingDistance: 1
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
@@ -2210,10 +2174,22 @@ MonoBehaviour:
   PathStatus: 2
   JumpCurve:
     serializedVersion: 2
-    m_Curve: []
+    m_Curve:
+    - serializedVersion: 2
+      time: 0
+      value: 0
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+    - serializedVersion: 2
+      time: 1
+      value: -0.049999237
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
-    m_RotationOrder: 4
+    m_RotationOrder: 0
 --- !u!1 &821024701
 GameObject:
   m_ObjectHideFlags: 0

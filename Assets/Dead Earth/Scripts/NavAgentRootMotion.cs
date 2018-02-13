@@ -20,7 +20,7 @@ public class NavAgentRootMotion: MonoBehaviour
     //Private Members 
     private NavMeshAgent _navAgent = null;
     private Animator _animator = null;
-   
+    private float _smoothAngle = 0;
 
 
     // Use this for initialization
@@ -88,7 +88,18 @@ public class NavAgentRootMotion: MonoBehaviour
         PathStale = _navAgent.isPathStale;
         PathStatus = _navAgent.pathStatus;
 
-           
+        
+        //calculation of angle
+        Vector3 localDesiredVelocity = transform.InverseTransformVector(_navAgent.desiredVelocity);
+        float angle = Mathf.Atan2(localDesiredVelocity.x, localDesiredVelocity.z) * Mathf.Rad2Deg;
+        _smoothAngle = Mathf.MoveTowardsAngle(_smoothAngle, angle, 80.0f * Time.deltaTime);
+
+        float speed = localDesiredVelocity.magnitude;
+
+
+        _animator.SetFloat("Angle", _smoothAngle);
+        _animator.SetFloat("Speed", speed, 0.1f, Time.deltaTime);
+
         
         //if we dont have a path
         if ((_navAgent.remainingDistance<=_navAgent.stoppingDistance && !PathPending) || PathStatus == NavMeshPathStatus.PathInvalid /*|| PathStatus==NavMeshPathStatus.PathPartial*/)
@@ -98,13 +109,17 @@ public class NavAgentRootMotion: MonoBehaviour
         else
         if (_navAgent.isPathStale)
             SetNextDestination(false);
+
+
        
     }
 
-
-    private void OnAnimatorMove()
+    // pop in up values before unity uses this values, calculate velocity --> set the final velocity to navAgent
+    void OnAnimatorMove()
     {
-        
+        transform.rotation = _animator.rootRotation;
+        _navAgent.velocity = _animator.deltaPosition / Time.deltaTime;
+
     }
 
 
