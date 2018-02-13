@@ -16,6 +16,7 @@ public class NavAgentRootMotion: MonoBehaviour
     public bool PathStale = false;
     public NavMeshPathStatus PathStatus = NavMeshPathStatus.PathInvalid;
     public AnimationCurve JumpCurve = new AnimationCurve();
+    public bool MixedMode = true;
 
     //Private Members 
     private NavMeshAgent _navAgent = null;
@@ -102,8 +103,13 @@ public class NavAgentRootMotion: MonoBehaviour
 
         if (_navAgent.desiredVelocity.sqrMagnitude > Mathf.Epsilon)
         {
-            Quaternion lookRotation = Quaternion.LookRotation(_navAgent.desiredVelocity, Vector3.up);
-            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, 5.0f * Time.deltaTime);
+            if (!MixedMode||
+                (MixedMode&& Mathf.Abs(angle)<80.0f && _animator.GetCurrentAnimatorStateInfo(0).IsName("Base Layer.Locomotion") ))
+            {
+                Quaternion lookRotation = Quaternion.LookRotation(_navAgent.desiredVelocity, Vector3.up);
+                transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, 5.0f * Time.deltaTime);
+            }
+            
         }
         
 
@@ -125,6 +131,10 @@ public class NavAgentRootMotion: MonoBehaviour
     // pop in up values before unity uses this values, calculate velocity --> set the final velocity to navAgent
     void OnAnimatorMove()
     {
+        if (MixedMode && !_animator.GetCurrentAnimatorStateInfo(0).IsName("Base Layer.Locomotion"))
+            transform.rotation = _animator.rootRotation;
+
+
        // transform.rotation = _animator.rootRotation;
         _navAgent.velocity = _animator.deltaPosition / Time.deltaTime;
 
