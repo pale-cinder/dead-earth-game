@@ -1,0 +1,7 @@
+# Ignore .p4ignore files
+.p4ignore.txt
+
+
+# Ignore the directories
+.git/
+.vs/
