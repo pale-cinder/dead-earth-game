@@ -5,7 +5,7 @@ using UnityEngine.AI;
 
 public enum AIStateType { None, Idle, Alerted, Patrol, Attack, Feeding, Pursuit, Dead }
 public enum AITargetType { None, Waypoint, Visual_Player, Visual_Light, Visual_Food, Audio }
-
+public enum AITriggerEventType { enter, Stay, Exit };
 
 // Potential targets to the AI System
 public struct AITarget
@@ -68,11 +68,12 @@ public abstract class AIStateMachine : MonoBehaviour
 
     public AITarget VisualThread = new AITarget();
     public AITarget AudioThread = new AITarget();
-        
-    
-        
+
+
+    protected AIState _currentState = null;    
     protected Dictionary<AIStateType, AIState>    _states = new Dictionary<AIStateType, AIState > ();
     protected AITarget _target = new AITarget();
+
 
     //Inspector
     [SerializeField] protected AIStateType _currentStateType = AIStateType.Idle;
@@ -109,14 +110,27 @@ public abstract class AIStateMachine : MonoBehaviour
 
         //Check the valid
         //Loop through all states and addd them to the state dictionary
-
-
+        
         foreach (AIState state in states)
         {
             if (state! = null && !_states.ContainsKey(state.GetStateType)))
                 {
+                //Add state to the state dictionary
                 _states[state.GetStateType()] = state;
+                state.SetStateMachine(this);
+
             }
+        }
+
+        if (_states.ContainsKey(_currentStateType))
+        {
+            _currentState = _states[_currentStateType];
+
+        }
+
+        else
+        {
+            _currentState = null;
         }
     }
 
@@ -195,6 +209,36 @@ public abstract class AIStateMachine : MonoBehaviour
         if (_target.type != AITargetType.None)
         {
             _target.distance = Vector3.Distance(_transform.position, _target.position);
+        }
+    }
+
+    protected virtual void Update()
+    {
+        if (_currentState == null) return;
+
+        AIStateType newStateType = _currentState.OnUpdate();
+
+        if (newStateType != _currentStateType)
+        {
+            AIState newState = null;
+            if (_states.TryGetValue(newStateType, out newState))  //Check if the key exists in the dictionary
+            {
+                _currentState.OnExitState(); 
+                newState.OnEnterState();
+                _currentState = newState;
+            }
+
+
+            else
+
+            if (_states.TryGetValue(AIStateType.Idle, out newState))
+            {
+                _currentState.OnExitState();
+                newState.OnEnterState();
+                _currentState = newState;
+            }
+
+            _currentStateType = newStateType;
         }
     }
 }
