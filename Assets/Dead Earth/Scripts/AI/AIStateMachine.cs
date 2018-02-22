@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 public enum AIStateType { None, Idle, Alerted, Patrol, Attack, Feeding, Pursuit, Dead }
-public enum AITargerType { None, Waypoint, Visual_Player, Visual_Light, Visual_Food, Audio }
+public enum AITargetType { None, Waypoint, Visual_Player, Visual_Light, Visual_Food, Audio }
 
 
 // Potential targets to the AI System
@@ -35,7 +35,7 @@ public struct AITarget
 
     private float { get { return _time; } } 
 
-    public void Set (AITargerType t, Collider c, Vector3 p, float d)
+    public void Set (AITargetType t, Collider c, Vector3 p, float d)
 
     {
 
@@ -50,7 +50,7 @@ public struct AITarget
 
 public void Clear()
 {
-    _type = AITargerType.None;
+    _type = AITargetType.None;
     _collider = null;
     _position = Vector3.zero;
     _time = 0.0f;
@@ -75,6 +75,7 @@ public abstract class AIStateMachine : MonoBehaviour
     protected AITarget _target = new AITarget();
 
     //Inspector
+    [SerializeField] protected AIStateType _currentStateType = AIStateType.Idle;
     [SerializeField] protected SphereCollider _targetTrigger = null;
     [SerializeField] protected SphereCollider _sensorTrigger = null;
 
@@ -90,6 +91,14 @@ public abstract class AIStateMachine : MonoBehaviour
     // Public Properties for component
     public Animator animator { get { return _animator; } }
     public NavMeshAgent navAgent { get { return _navAgent; } }
+
+    protected virtual void Awake()
+    {
+        _transform = transform;
+        _animator = GetComponent<Animator>();
+        _navAgent = GetComponent<NavMeshAgent>();
+        _collider = GetComponent<Collider>();
+    }
 
     protected virtual void Start ()
 
@@ -111,6 +120,43 @@ public abstract class AIStateMachine : MonoBehaviour
         }
     }
 
+
+
+    // Sets the current target 
+    public void SetTarget(AITargetType t, Collider c, Vector3 p, float d)
+    {
+        // Set the target info
+        _target.Set(t, c, p, d);
+
+        // Configure and enable the target trigger at the correct position and with the correct radius
+        if (_targetTrigger != null)
+        {
+            _targetTrigger.radius = _stoppingDistance;
+            _targetTrigger.transform.position = _target.position;
+            _targetTrigger.enabled = true;
+        }
+    }
+
+
+
+    // Sets the current target 
+    // Specifying a custom stopping distance
+        public void SetTarget(AITargetType t, Collider c, Vector3 p, float d, float s)
+    {
+        // Set the target Data
+        _target.Set(t, c, p, d);
+
+        // Configure and enable the target trigger at the correct position and with the correct radius
+        if (_targetTrigger != null)
+        {
+            _targetTrigger.radius = s;
+            _targetTrigger.transform.position = _target.position;
+            _targetTrigger.enabled = true;
+        }
+    }
+
+
+
     // Sets the current target and the target trigger
     public void SetTarget(AITarget t)
     {
@@ -126,4 +172,29 @@ public abstract class AIStateMachine : MonoBehaviour
         }
     }
 
+
+
+    //Clears the current target when it no longer in use
+       public void ClearTarget()
+    {
+        _target.Clear();
+        if (_targetTrigger != null)
+        {
+            _targetTrigger.enabled = false;
+        }
+    }
+
+
+    //clears the audio and visual threats each update, re-calculates the distance to the current target
+    protected virtual void FixedUpdate()
+    {
+        //clear each update
+        VisualThreat.Clear();
+        AudioThreat.Clear();
+
+        if (_target.type != AITargetType.None)
+        {
+            _target.distance = Vector3.Distance(_transform.position, _target.position);
+        }
+    }
 }
