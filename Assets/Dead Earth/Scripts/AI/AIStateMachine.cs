@@ -125,6 +125,7 @@ public abstract class AIStateMachine : MonoBehaviour
         if (_states.ContainsKey(_currentStateType))
         {
             _currentState = _states[_currentStateType];
+            _currentState.OnEnterState();
 
         }
 

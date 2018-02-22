@@ -11,7 +11,7 @@ public abstract class AIState : MonoBehaviour
   
     public virtual void OnEnterState() { }
     public virtual void OnExitState() { }
-    public virtual void OnUpdate() { }
+    public abstract AIStateType OnUpdate() { }
 
     public virtual void OnAnimatorUpdated() { }
     public virtual void OnAnimatorIKUpdated() { } //such as using humanoid avatar
@@ -27,6 +27,6 @@ public abstract class AIState : MonoBehaviour
 
   
 
-    protected AIStateMachine _stateMachine;
+    protected AIStateMachine _stateMachine; 
 
 }
