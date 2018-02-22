@@ -1,8 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-
+using UnityEngine.AI;
 
 public enum AIStateType { None, Idle, Alerted, Patrol, Attack, Feeding, Pursuit, Dead }
 public enum AITargerType { None, Waypoint, Visual_Player, Visual_Light, Visual_Food, Audio }
@@ -75,6 +74,22 @@ public abstract class AIStateMachine : MonoBehaviour
     protected Dictionary<AIStateType, AIState>    _states = new Dictionary<AIStateType, AIState > ();
     protected AITarget _target = new AITarget();
 
+    //Inspector
+    [SerializeField] protected SphereCollider _targetTrigger = null;
+    [SerializeField] protected SphereCollider _sensorTrigger = null;
+
+    [SerializeField] [Range(0, 15)] protected float _stoppingDistance = 1.0f;
+    
+
+    //Component cache
+    protected Animator _animator = null;
+    protected NavMeshAgent _navAgent = null;
+    protected Collider _collider = null;
+    protected Transform _transform = null;
+
+    // Public Properties for component
+    public Animator animator { get { return _animator; } }
+    public NavMeshAgent navAgent { get { return _navAgent; } }
 
     protected virtual void Start ()
 
@@ -93,6 +108,21 @@ public abstract class AIStateMachine : MonoBehaviour
                 {
                 _states[state.GetStateType()] = state;
             }
+        }
+    }
+
+    // Sets the current target and the target trigger
+    public void SetTarget(AITarget t)
+    {
+        // Assign the new target
+        _target = t;
+
+        // Configure and then enable the target trigger at the correct position and with the correct radius
+        if (_targetTrigger != null)
+        {
+            _targetTrigger.radius = _stoppingDistance;
+            _targetTrigger.transform.position = t.position;
+            _targetTrigger.enabled = true;
         }
     }
 
