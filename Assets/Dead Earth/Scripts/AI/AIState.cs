@@ -6,12 +6,12 @@ public abstract class AIState : MonoBehaviour
 {
     public void SetStateMachine (AIStateMachine stateMachene) { _stateMachine = stateMachene; }
 
-    public abstract AIStateType GetStateType;
+    //public abstract AIStateType GetStateType;
 
   
     public virtual void OnEnterState() { }
     public virtual void OnExitState() { }
-    public abstract AIStateType OnUpdate() { }
+    //public abstract AIStateType OnUpdate() { }
 
     public virtual void OnAnimatorUpdated() { }
     public virtual void OnAnimatorIKUpdated() { } //such as using humanoid avatar

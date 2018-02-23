@@ -25,6 +25,9 @@ public struct AITarget
     private float _time;
 
 
+
+
+
     public AIStateType type { get { return _type; } }
 
     private Collider { get { return _collider; } }
@@ -35,9 +38,11 @@ public struct AITarget
 
     private float { get { return _time; } } 
 
+
+    
     public void Set (AITargetType t, Collider c, Vector3 p, float d)
 
-    {
+{
 
     _type = t;
     _collider = c;
@@ -45,7 +50,9 @@ public struct AITarget
     _distance = d;
     _tyme = Time.time;
 
-    }
+}
+
+
 
 
 public void Clear()
@@ -71,7 +78,7 @@ public abstract class AIStateMachine : MonoBehaviour
 
 
     protected AIState _currentState = null;    
-    protected Dictionary<AIStateType, AIState>    _states = new Dictionary<AIStateType, AIState > ();
+    protected Dictionary<AIStateType, AIState > _states = new Dictionary<AIStateType, AIState > ();
     protected AITarget _target = new AITarget();
 
 
@@ -92,6 +99,37 @@ public abstract class AIStateMachine : MonoBehaviour
     // Public Properties for component
     public Animator animator { get { return _animator; } }
     public NavMeshAgent navAgent { get { return _navAgent; } }
+    public Vector3 sensorPosition
+
+
+    {
+        get
+        {
+            if (_sensorTrigger == null) return Vector3.zero;
+            Vector3 point = _sensorTrigger.transform.position;
+            point.x += _sensorTrigger.center.x * _sensorTrigger.transform.lossyScale.x;
+            point.y += _sensorTrigger.center.y * _sensorTrigger.transform.lossyScale.y;
+            point.z += _sensorTrigger.center.z * _sensorTrigger.transform.lossyScale.z;
+            return point;
+        }
+    }
+
+
+    public float sensorRadius
+    {
+        get
+        {
+            if (_sensorTrigger == null) return 0.0f;
+            float radius = Mathf.Max(_sensorTrigger.radius * _sensorTrigger.transform.lossyScale.x,
+                                        _sensorTrigger.radius * _sensorTrigger.transform.lossyScale.y);
+
+            return Mathf.Max(radius, _sensorTrigger.radius * _sensorTrigger.transform.lossyScale.z);
+        }
+    }
+
+    public bool useRootPosition { get { return _rootPositionRefCount > 0; } }
+    public bool useRootRotation { get { return _rootRotationRefCount > 0; } }
+
 
     protected virtual void Awake()
     {
@@ -101,10 +139,22 @@ public abstract class AIStateMachine : MonoBehaviour
         _collider = GetComponent<Collider>();
     }
 
+
+    // Do we have a valid Game Scene Manager
+		if (GameSceneManager.instance!=null)
+		{
+			// Register State Machines with Scene Database
+			if (_collider) GameSceneManager.instance.RegisterAIStateMachine(_collider.GetInstanceID(), this );
+			if (_sensorTrigger) GameSceneManager.instance.RegisterAIStateMachine(_sensorTrigger.GetInstanceID(), this );
+}
+
+	} 
+
+
     protected virtual void Start ()
 
     {
-        AIState[] states = GetComponent<AIState>();
+       // AIState[] states = GetComponent<AIState>();
         
         //Make shure that the dictionary doesn't have an AI state that has AIState key
 
@@ -113,15 +163,21 @@ public abstract class AIStateMachine : MonoBehaviour
         
         foreach (AIState state in states)
         {
-            if (state! = null && !_states.ContainsKey(state.GetStateType)))
-                {
-                //Add state to the state dictionary
-                _states[state.GetStateType()] = state;
-                state.SetStateMachine(this);
+         // if (state! = null && !_states.ContainsKey(state.GetStateType)))
 
+        if (_sensorTrigger != null)
+
+        {
+            //Add state to the state dictionary
+            AISensor script = _sensorTrigger.GetComponent<AISensor>();
+            if (script != null)
+            {
+                script.parentStateMachine = this;
             }
+
         }
 
+        // Set the current state
         if (_states.ContainsKey(_currentStateType))
         {
             _currentState = _states[_currentStateType];
@@ -133,6 +189,16 @@ public abstract class AIStateMachine : MonoBehaviour
         {
             _currentState = null;
         }
+
+        if (_animator)
+        {
+            AIStateMachineLink[] scripts = _animator.GetBehaviours<AIStateMachineLink>();
+            foreach (AIStateMachineLink script in scripts)
+            {
+                script.stateMachine = this;
+            }
+        }
+
     }
 
 
@@ -242,4 +308,69 @@ public abstract class AIStateMachine : MonoBehaviour
             _currentStateType = newStateType;
         }
     }
+
+
+protected virtual void OnTriggerEnter(Collider other)
+{
+    if (_targetTrigger == null || other != _targetTrigger) return;
+
+    // Notify Child State
+    if (_currentState)
+        _currentState.OnDestinationReached(true);
+}
+
+public void OnTriggerExit(Collider other)
+{
+    if (_targetTrigger == null || _targetTrigger != other) return;
+    if (_currentState != null)
+        _currentState.OnDestinationReached(false);
+}
+public virtual void OnTriggerEvent(AITriggerEventType type, Collider other)
+{
+    if (_currentState != null)
+        _currentState.OnTriggerEvent(type, other);
+}
+protected virtual void OnAnimatorMove()
+{
+    if (_currentState != null)
+        _currentState.OnAnimatorUpdated();
+}
+
+// ----------------------------------------------------------
+// Name	: OnAnimatorIK
+// Desc	: Called by Unity just prior to the IK system being
+//		  updated giving us a chance to setup up IK Targets
+//		  and weights.
+// ----------------------------------------------------------
+protected virtual void OnAnimatorIK(int layerIndex)
+{
+    if (_currentState != null)
+        _currentState.OnAnimatorIKUpdated();
+}
+
+// ----------------------------------------------------------
+// Name	:	NavAgentControl
+// Desc	:	Configure the NavMeshAgent to enable/disable auto
+//			updates of position/rotation to our transform
+// ----------------------------------------------------------
+public void NavAgentControl(bool positionUpdate, bool rotationUpdate)
+{
+    if (_navAgent)
+    {
+        _navAgent.updatePosition = positionUpdate;
+        _navAgent.updateRotation = rotationUpdate;
+    }
+}
+
+// ----------------------------------------------------------
+// Name	:	AddRootMotionRequest
+// Desc	:	Called by the State Machine Behaviours to
+//			Enable/Disable root motion
+// ----------------------------------------------------------
+public void AddRootMotionRequest(int rootPosition, int rootRotation)
+{
+    _rootPositionRefCount += rootPosition;
+    _rootRotationRefCount += rootRotation;
+}
+
 }
