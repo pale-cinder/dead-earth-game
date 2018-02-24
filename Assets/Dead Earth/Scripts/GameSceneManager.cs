@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameScreenManager : MonoBehaviour {
+public class GameSceneManager : MonoBehaviour {
 
 
     // Store instances
     private static GameSceneManager _instance = null;
 
     //returns the game scene static object
+
     public static GameSceneManager instance
     {
         get

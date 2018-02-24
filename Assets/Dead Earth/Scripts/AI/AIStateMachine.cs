@@ -1,107 +1,81 @@
-﻿using System.Collections;
+﻿using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.AI;
 
 public enum AIStateType { None, Idle, Alerted, Patrol, Attack, Feeding, Pursuit, Dead }
 public enum AITargetType { None, Waypoint, Visual_Player, Visual_Light, Visual_Food, Audio }
-public enum AITriggerEventType { enter, Stay, Exit };
+public enum AITriggerEventType { Enter, Stay, Exit }
 
-// Potential targets to the AI System
 public struct AITarget
 {
-    //Target type
-    private AIStateType _type; 
+    private AITargetType _type;     // The type of target
+    private Collider _collider;     // The collider
+    private Vector3 _position;      // Current position in the world
+    private float _distance;        // Distance from player
+    private float _time;            // Time the target was last ping'd
 
-    private Collider _collider;
+    public AITargetType type { get { return _type; } }
+    public Collider collider { get { return _collider; } }
+    public Vector3 position { get { return _position; } }
+    public float distance { get { return _distance; } set { _distance = value; } }
+    public float time { get { return _time; } }
 
-    //Current possition in the world
-    private Vector3 _position;
+    public void Set(AITargetType t, Collider c, Vector3 p, float d)
+    {
+        _type = t;
+        _collider = c;
+        _position = p;
+        _distance = d;
+        _time = Time.time;
+    }
 
-    //Distance from player
-    private float _distance;
-
-    //Time the target was ping'd at last
-    private float _time;
-
-
-
-
-
-    public AIStateType type { get { return _type; } }
-
-    private Collider { get { return _collider; } }
-
-    private Vector3  { get { return _position; } } 
-
-    private float { get { return _distance; } } 
-
-    private float { get { return _time; } } 
-
-
-    
-    public void Set (AITargetType t, Collider c, Vector3 p, float d)
-
-{
-
-    _type = t;
-    _collider = c;
-    _possition = p;
-    _distance = d;
-    _tyme = Time.time;
-
-}
-
-
-
-
-public void Clear()
-{
-    _type = AITargetType.None;
-    _collider = null;
-    _position = Vector3.zero;
-    _time = 0.0f;
-    _distance = Mathf.Infinity;
-}
+    public void Clear()
+    {
+        _type = AITargetType.None;
+        _collider = null;
+        _position = Vector3.zero;
+        _time = 0.0f;
+        _distance = Mathf.Infinity;
+    }
 }
 
 
 public abstract class AIStateMachine : MonoBehaviour
 {
+    
+    public AITarget VisualThreat = new AITarget();
+    public AITarget AudioThreat = new AITarget();
 
-    //First of all - what the current state is
+    
+    protected AIState _currentState = null;
 
-    //Key to the dictionary                   
+    protected Dictionary<AIStateType, AIState> _states = new Dictionary<AIStateType, AIState>();
 
-    public AITarget VisualThread = new AITarget();
-    public AITarget AudioThread = new AITarget();
-
-
-    protected AIState _currentState = null;    
-    protected Dictionary<AIStateType, AIState > _states = new Dictionary<AIStateType, AIState > ();
     protected AITarget _target = new AITarget();
 
+    // By defolt there are no root motion at all 
+    protected int _rootPositionRefCount = 0;
+    protected int _rootRotationRefCount = 0;
 
-    //Inspector
+    
     [SerializeField] protected AIStateType _currentStateType = AIStateType.Idle;
+
     [SerializeField] protected SphereCollider _targetTrigger = null;
     [SerializeField] protected SphereCollider _sensorTrigger = null;
 
     [SerializeField] [Range(0, 15)] protected float _stoppingDistance = 1.0f;
-    
 
-    //Component cache
+    
     protected Animator _animator = null;
     protected NavMeshAgent _navAgent = null;
     protected Collider _collider = null;
     protected Transform _transform = null;
 
-    // Public Properties for component
+   
     public Animator animator { get { return _animator; } }
-    public NavMeshAgent navAgent { get { return _navAgent; } }
+    public NavMeshAgent NavAgent { get { return _navAgent; } }
     public Vector3 sensorPosition
-
-
     {
         get
         {
@@ -113,7 +87,6 @@ public abstract class AIStateMachine : MonoBehaviour
             return point;
         }
     }
-
 
     public float sensorRadius
     {
@@ -129,52 +102,53 @@ public abstract class AIStateMachine : MonoBehaviour
 
     public bool useRootPosition { get { return _rootPositionRefCount > 0; } }
     public bool useRootRotation { get { return _rootRotationRefCount > 0; } }
-
-
+    
     protected virtual void Awake()
     {
+       
         _transform = transform;
         _animator = GetComponent<Animator>();
         _navAgent = GetComponent<NavMeshAgent>();
         _collider = GetComponent<Collider>();
+
+       
+        if (GameSceneManager.instance != null)
+        {
+          
+            if (_collider) GameSceneManager.instance.RegisterAIStateMachine(_collider.GetInstanceID(), this);
+            if (_sensorTrigger) GameSceneManager.instance.RegisterAIStateMachine(_sensorTrigger.GetInstanceID(), this);
+        }
+
     }
 
-
-    // Do we have a valid Game Scene Manager
-		if (GameSceneManager.instance!=null)
-		{
-			// Register State Machines with Scene Database
-			if (_collider) GameSceneManager.instance.RegisterAIStateMachine(_collider.GetInstanceID(), this );
-			if (_sensorTrigger) GameSceneManager.instance.RegisterAIStateMachine(_sensorTrigger.GetInstanceID(), this );
-}
-
-	} 
-
-
-    protected virtual void Start ()
-
+   
+    protected virtual void Start()
     {
-       // AIState[] states = GetComponent<AIState>();
-        
-        //Make shure that the dictionary doesn't have an AI state that has AIState key
-
-        //Check the valid
-        //Loop through all states and addd them to the state dictionary
-        
-        foreach (AIState state in states)
-        {
-         // if (state! = null && !_states.ContainsKey(state.GetStateType)))
-
+        // Set the sensor trigger's parent to this state machine
         if (_sensorTrigger != null)
-
         {
-            //Add state to the state dictionary
             AISensor script = _sensorTrigger.GetComponent<AISensor>();
             if (script != null)
             {
                 script.parentStateMachine = this;
             }
+        }
 
+
+        // Fetch all states on this game object
+        AIState[] states = GetComponents<AIState>();
+
+        // Loop through all states and add them to the state dictionary
+        foreach (AIState state in states)
+        {
+            if (state != null && !_states.ContainsKey(state.GetStateType()))
+            {
+                // Add this state to the state dictionary
+                _states[state.GetStateType()] = state;
+
+                // And set the parent state machine of this state
+                state.SetStateMachine(this);
+            }
         }
 
         // Set the current state
@@ -182,14 +156,14 @@ public abstract class AIStateMachine : MonoBehaviour
         {
             _currentState = _states[_currentStateType];
             _currentState.OnEnterState();
-
         }
-
         else
         {
             _currentState = null;
         }
 
+        // Fetch all AIStateMachineLink derived behaviours from the animator
+        // and set their State Machine references to this state machine
         if (_animator)
         {
             AIStateMachineLink[] scripts = _animator.GetBehaviours<AIStateMachineLink>();
@@ -198,18 +172,16 @@ public abstract class AIStateMachine : MonoBehaviour
                 script.stateMachine = this;
             }
         }
-
     }
 
-
-
-    // Sets the current target 
+    
     public void SetTarget(AITargetType t, Collider c, Vector3 p, float d)
     {
         // Set the target info
         _target.Set(t, c, p, d);
 
-        // Configure and enable the target trigger at the correct position and with the correct radius
+        // Configure and enable the target trigger at the correct
+        // position and with the correct radius
         if (_targetTrigger != null)
         {
             _targetTrigger.radius = _stoppingDistance;
@@ -218,16 +190,14 @@ public abstract class AIStateMachine : MonoBehaviour
         }
     }
 
-
-
-    // Sets the current target 
-    // Specifying a custom stopping distance
-        public void SetTarget(AITargetType t, Collider c, Vector3 p, float d, float s)
+    
+    public void SetTarget(AITargetType t, Collider c, Vector3 p, float d, float s)
     {
         // Set the target Data
         _target.Set(t, c, p, d);
 
-        // Configure and enable the target trigger at the correct position and with the correct radius
+        // Configure and enable the target trigger at the correct
+        // position and with the correct radius
         if (_targetTrigger != null)
         {
             _targetTrigger.radius = s;
@@ -236,15 +206,14 @@ public abstract class AIStateMachine : MonoBehaviour
         }
     }
 
-
-
-    // Sets the current target and the target trigger
+    
     public void SetTarget(AITarget t)
     {
         // Assign the new target
         _target = t;
 
-        // Configure and then enable the target trigger at the correct position and with the correct radius
+        // Configure and enable the target trigger at the correct
+        // position and with the correct radius
         if (_targetTrigger != null)
         {
             _targetTrigger.radius = _stoppingDistance;
@@ -253,10 +222,8 @@ public abstract class AIStateMachine : MonoBehaviour
         }
     }
 
-
-
-    //Clears the current target when it no longer in use
-       public void ClearTarget()
+    
+    public void ClearTarget()
     {
         _target.Clear();
         if (_targetTrigger != null)
@@ -265,11 +232,9 @@ public abstract class AIStateMachine : MonoBehaviour
         }
     }
 
-
-    //clears the audio and visual threats each update, re-calculates the distance to the current target
+   
     protected virtual void FixedUpdate()
     {
-        //clear each update
         VisualThreat.Clear();
         AudioThreat.Clear();
 
@@ -279,25 +244,22 @@ public abstract class AIStateMachine : MonoBehaviour
         }
     }
 
+    
     protected virtual void Update()
     {
         if (_currentState == null) return;
 
         AIStateType newStateType = _currentState.OnUpdate();
-
         if (newStateType != _currentStateType)
         {
             AIState newState = null;
-            if (_states.TryGetValue(newStateType, out newState))  //Check if the key exists in the dictionary
+            if (_states.TryGetValue(newStateType, out newState))
             {
-                _currentState.OnExitState(); 
+                _currentState.OnExitState();
                 newState.OnEnterState();
                 _currentState = newState;
             }
-
-
             else
-
             if (_states.TryGetValue(AIStateType.Idle, out newState))
             {
                 _currentState.OnExitState();
@@ -309,68 +271,62 @@ public abstract class AIStateMachine : MonoBehaviour
         }
     }
 
-
-protected virtual void OnTriggerEnter(Collider other)
-{
-    if (_targetTrigger == null || other != _targetTrigger) return;
-
-    // Notify Child State
-    if (_currentState)
-        _currentState.OnDestinationReached(true);
-}
-
-public void OnTriggerExit(Collider other)
-{
-    if (_targetTrigger == null || _targetTrigger != other) return;
-    if (_currentState != null)
-        _currentState.OnDestinationReached(false);
-}
-public virtual void OnTriggerEvent(AITriggerEventType type, Collider other)
-{
-    if (_currentState != null)
-        _currentState.OnTriggerEvent(type, other);
-}
-protected virtual void OnAnimatorMove()
-{
-    if (_currentState != null)
-        _currentState.OnAnimatorUpdated();
-}
-
-// ----------------------------------------------------------
-// Name	: OnAnimatorIK
-// Desc	: Called by Unity just prior to the IK system being
-//		  updated giving us a chance to setup up IK Targets
-//		  and weights.
-// ----------------------------------------------------------
-protected virtual void OnAnimatorIK(int layerIndex)
-{
-    if (_currentState != null)
-        _currentState.OnAnimatorIKUpdated();
-}
-
-// ----------------------------------------------------------
-// Name	:	NavAgentControl
-// Desc	:	Configure the NavMeshAgent to enable/disable auto
-//			updates of position/rotation to our transform
-// ----------------------------------------------------------
-public void NavAgentControl(bool positionUpdate, bool rotationUpdate)
-{
-    if (_navAgent)
+    protected virtual void OnTriggerEnter(Collider other)
     {
-        _navAgent.updatePosition = positionUpdate;
-        _navAgent.updateRotation = rotationUpdate;
+        if (_targetTrigger == null || other != _targetTrigger) return;
+
+        // Notify Child State
+        if (_currentState)
+            _currentState.OnDestinationReached(true);
     }
-}
 
-// ----------------------------------------------------------
-// Name	:	AddRootMotionRequest
-// Desc	:	Called by the State Machine Behaviours to
-//			Enable/Disable root motion
-// ----------------------------------------------------------
-public void AddRootMotionRequest(int rootPosition, int rootRotation)
-{
-    _rootPositionRefCount += rootPosition;
-    _rootRotationRefCount += rootRotation;
-}
+    
+    public void OnTriggerExit(Collider other)
+    {
+        if (_targetTrigger == null || _targetTrigger != other) return;
+        if (_currentState != null)
+            _currentState.OnDestinationReached(false);
+    }
 
+    //when an AI Aggravator has entered/exited the sensor trigger
+    public virtual void OnTriggerEvent(AITriggerEventType type, Collider other)
+    {
+        if (_currentState != null)
+            _currentState.OnTriggerEvent(type, other);
+    }
+
+    // Called by Unity after root motion has been evaluated but not applied to the object.
+    // This allows us to determine via code what to do
+    // ith the root motion information
+    protected virtual void OnAnimatorMove()
+    {
+        if (_currentState != null)
+            _currentState.OnAnimatorUpdated();
+    }
+
+    // IK system being  updated giving a chance to setup up IK Targets
+    // and weights
+    protected virtual void OnAnimatorIK(int layerIndex)
+    {
+        if (_currentState != null)
+            _currentState.OnAnimatorIKUpdated();
+    }
+
+    // Configure the NavMeshAgent to enable/disable auto
+    //updates of position/rotation to our transform
+    public void NavAgentControl(bool positionUpdate, bool rotationUpdate)
+    {
+        if (_navAgent)
+        {
+            _navAgent.updatePosition = positionUpdate;
+            _navAgent.updateRotation = rotationUpdate;
+        }
+    }
+
+   // Enable / Desible root motion
+    public void AddRootMotionRequest(int rootPosition, int rootRotation)
+    {
+        _rootPositionRefCount += rootPosition;
+        _rootRotationRefCount += rootRotation;
+    }
 }
