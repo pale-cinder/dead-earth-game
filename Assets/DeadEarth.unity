@@ -2136,6 +2136,7 @@ GameObject:
   - component: {fileID: 819018105}
   - component: {fileID: 819018104}
   - component: {fileID: 819018106}
+  - component: {fileID: 819018107}
   m_Layer: 8
   m_Name: AI Entity
   m_TagString: Untagged
@@ -2226,6 +2227,21 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &819018107
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 819018101}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b04d1f87535e4349a99d55c1d868d74, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _currentStateType: 1
+  _targetTrigger: {fileID: 0}
+  _sensorTrigger: {fileID: 0}
+  _stoppingDistance: 1
 --- !u!1 &821024701
 GameObject:
   m_ObjectHideFlags: 0
