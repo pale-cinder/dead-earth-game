@@ -26,6 +26,17 @@ public abstract class AIState : MonoBehaviour
 
   
 
-    protected AIStateMachine _stateMachine; 
+    protected AIStateMachine _stateMachine;
 
+    public virtual void OnAnimatorUpdated()
+    {
+        // Get the number of meters the root motion has updated for this update and divide by deltaTime to get meters per second. We then assign this to the nav agent's velocity.
+        if (_stateMachine.useRootPosition)
+            _stateMachine.navAgent.velocity = _stateMachine.animator.deltaPosition / Time.deltaTime;
+
+        // Grab the root rotation from the animator and assign as our transform's rotation.
+        if (_stateMachine.useRootRotation)
+            _stateMachine.transform.rotation = _stateMachine.animator.rootRotation;
+
+    }
 }
