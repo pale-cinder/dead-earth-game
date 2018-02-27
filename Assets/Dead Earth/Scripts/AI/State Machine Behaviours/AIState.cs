@@ -12,7 +12,8 @@ public abstract class AIState : MonoBehaviour
     public virtual void OnExitState() { }
     //public abstract AIStateType OnUpdate() { }
 
-    public virtual void OnAnimatorUpdated() { }
+    //public virtual void OnAnimatorUpdated() { }
+    
     public virtual void OnAnimatorIKUpdated() { } //such as using humanoid avatar
 
     public virtual void OnTriggerEvent(AITriggerEventType eventType, Collider other) { } //Collider that generated the ivent 
@@ -28,11 +29,13 @@ public abstract class AIState : MonoBehaviour
 
     protected AIStateMachine _stateMachine;
 
+
+
     public virtual void OnAnimatorUpdated()
     {
         // Get the number of meters the root motion has updated for this update and divide by deltaTime to get meters per second. We then assign this to the nav agent's velocity.
         if (_stateMachine.useRootPosition)
-            _stateMachine.navAgent.velocity = _stateMachine.animator.deltaPosition / Time.deltaTime;
+            _stateMachine.NavAgent.velocity = _stateMachine.animator.deltaPosition / Time.deltaTime;
 
         // Grab the root rotation from the animator and assign as our transform's rotation.
         if (_stateMachine.useRootRotation)

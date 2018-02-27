@@ -2242,6 +2242,9 @@ MonoBehaviour:
   _targetTrigger: {fileID: 0}
   _sensorTrigger: {fileID: 0}
   _stoppingDistance: 1
+  _fov: 50
+  _sight: 0.5
+  _hearing: 1
 --- !u!1 &821024701
 GameObject:
   m_ObjectHideFlags: 0
