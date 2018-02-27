@@ -4,7 +4,9 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - New tag
+  - AI Sound Emitter
+  - AI Visual
+  - AI Food
   layers:
   - Default
   - TransparentFX
@@ -17,9 +19,9 @@ TagManager:
   - AI Entity
   - AI Entity Trigger
   - AI Trigger
-  - 
-  - 
-  - 
+  - Player
+  - Visual Aggravator
+  - Audio Aggravator
   - 
   - 
   - 
