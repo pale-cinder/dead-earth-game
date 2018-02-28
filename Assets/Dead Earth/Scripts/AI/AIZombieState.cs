@@ -6,7 +6,7 @@ public abstract class AIZombieState : AIState
 {
     // Identify different threats
 
-    public override void OnTriggerEvent(AITriggerEventType eventType, Collider other)
+    public override void OnTriggerEvent(AITargetEventType eventType, Collider other)
     {
 
         // base.OnTriggerEvent(eventType, other);
@@ -14,20 +14,22 @@ public abstract class AIZombieState : AIState
         if (_stateMachine == null)
             return;
 
-        if (eventType != AITriggerEventType.Exit)
+        if (eventType != AITargetEventType.Exit)
         {
-            AITriggerEventType curType = _stateMachine.VisualThreat;
+            AITargetType curType = _stateMachine.VisualThreat.type;
 
             // If it's not a player, examing the tag
 
         if (other.CompareTag ("Player") )
             {
-                // Calculate the distance from the zombie to the player
-                Vector3 distance = Vector3.Distance(_stateMachine.sensorPosition, other.transform.position);
-                if  curType != AITargetType.Visual_Player ||
-                    curType == AITargetType.Visual_Player&& distance <_stateMachine.VisualThreat.distance))
+                // Calculate the distance from the zombie to the player,
+                // sensorPosition - mesure the distance from the sensor from the heat not from the feet
+                // --> store. Check if we store the player.
+                float distance = Vector3.Distance(_stateMachine.sensorPosition, other.transform.position);
+                if  (curType != AITargetType.Visual_Player ||
+                             (curType == AITargetType.Visual_Player && distance < _stateMachine.VisualThreat.distance))
                     {
-
+                    
 
                     }
 

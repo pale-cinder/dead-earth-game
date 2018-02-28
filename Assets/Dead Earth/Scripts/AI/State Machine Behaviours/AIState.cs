@@ -16,7 +16,7 @@ public abstract class AIState : MonoBehaviour
     
     public virtual void OnAnimatorIKUpdated() { } //such as using humanoid avatar
 
-    public virtual void OnTriggerEvent(AITriggerEventType eventType, Collider other) { } //Collider that generated the ivent 
+    public virtual void OnTriggerEvent(AITargetEventType eventType, Collider other) { } //Collider that generated the ivent 
 
     public virtual void OnDestinationReached(bool isReached) { } //if we reached the target or not
 

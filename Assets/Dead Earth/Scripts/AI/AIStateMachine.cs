@@ -5,7 +5,7 @@ using UnityEngine.AI;
 
 public enum AIStateType { None, Idle, Alerted, Patrol, Attack, Feeding, Pursuit, Dead }
 public enum AITargetType { None, Waypoint, Visual_Player, Visual_Light, Visual_Food, Audio }
-public enum AITriggerEventType { Enter, Stay, Exit }
+public enum AITargetEventType { Enter, Stay, Exit }
 
 public struct AITarget
 {
@@ -289,7 +289,7 @@ public abstract class AIStateMachine : MonoBehaviour
     }
 
     //when an AI Aggravator has entered/exited the sensor trigger
-    public virtual void OnTriggerEvent(AITriggerEventType type, Collider other)
+    public virtual void OnTriggerEvent(AITargetEventType type, Collider other)
     {
         if (_currentState != null)
             _currentState.OnTriggerEvent(type, other);

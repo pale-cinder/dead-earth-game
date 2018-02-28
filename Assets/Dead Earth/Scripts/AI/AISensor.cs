@@ -15,19 +15,19 @@ public class AISensor : MonoBehaviour
     void OnTriggerEnter(Collider col)
     {
         if (_parentStateMachine != null)
-            _parentStateMachine.OnTriggerEvent(AITriggerEventType.Enter, col);
+            _parentStateMachine.OnTriggerEvent(AITargetEventType.Enter, col);
     }
 
     void OnTriggerStay(Collider col)
     {
         if (_parentStateMachine != null)
-            _parentStateMachine.OnTriggerEvent(AITriggerEventType.Stay, col);
+            _parentStateMachine.OnTriggerEvent(AITargetEventType.Stay, col);
     }
 
     void OnTriggerExit(Collider col)
     {
         if (_parentStateMachine != null)
-            _parentStateMachine.OnTriggerEvent(AITriggerEventType.Exit, col);
+            _parentStateMachine.OnTriggerEvent(AITargetEventType.Exit, col);
     }
 
 }
