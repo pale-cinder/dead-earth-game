@@ -8,11 +8,20 @@ public abstract class AIZombieState : AIState
     protected int _playerLayerMask = -1;
     protected int _bodyPartLayer = -1;
 
+
+
+
     private void Awake()
     {
+        // Get a mask. (+1) hack = default layer
         _playerLayerMask = LayerMask.GetMask("Player", "AI Body Part")+1;
-        _bodyPartLayer = LayerMask.GetMask("AI Body Part");
+
+        // Get the layer index of the AI Body Part layer
+        _bodyPartLayer = LayerMask.NameToLayer("AI Body Part");
     }
+
+
+
 
 
 
@@ -53,6 +62,7 @@ public abstract class AIZombieState : AIState
             }
 
 
+
         }
     }
 
@@ -62,24 +72,30 @@ public abstract class AIZombieState : AIState
 
 
 
-
+    // Test the passed collider against the zombie's fov and using the passed layer mask for line of sight testing
     protected virtual bool ColliderIsVisible (Collider other, out RaycastHit hitInfo, int layerMask = -1)
     {
+        // Return something
         hitInfo = new RaycastHit();
 
+        // State Machine sets
         if (_stateMachine == null || _stateMachine.GetType()!=typeof(AIZombieStateMachine) ) 
             return false;
-
+                
         AIZombieStateMachine zombieMachine = (AIZombieStateMachine)_stateMachine;
 
+
+        // Calculate the angle between the sensor origin anf the direction of the collider
         Vector3 head = _stateMachine.sensorPosition;
         Vector3 direction = other.transform.position - head;
         float angle = Vector3.Angle(direction, transform.forward);
 
+
+        // If the angle is greater than half of fov then it is outside the view cone ---> return false (no visability)
         if (angle > zombieMachine.fov * 0.5f)
             return false;
 
-        // Return all of the hits the ray
+        // Return all of hits 
         RaycastHit[] hits = Physics.RaycastAll(head, direction.normalized, _stateMachine.sensorRadius * zombieMachine.sight, layerMask);
 
         // Find the closesr collider that is not the AIs own body part
@@ -91,13 +107,17 @@ public abstract class AIZombieState : AIState
         {
             RaycastHit hit = hits[i];
 
+            // Is this is the closest hit than any other previously found and stored
             if (hit.distance < closestColliderDistance)
             {
+
+                // If the hit is on the body part layer
                 if (hit.transform.gameObject.layer == _bodyPartLayer)
                 {
+                    //Assume it is not our own body part
                     if (_stateMachine != GameSceneManager.instance.GetAIStateMachine(hit.rigidbody.GetInstanceID()))
                     {
-
+                        // Store the collider, distance and hit information
                         closestColliderDistance = hit.distance;
                         closestCollider = hit.collider;
                         hitInfo = hit;
@@ -108,6 +128,7 @@ public abstract class AIZombieState : AIState
                 else
                 {
 
+                    // It is not a body part --> store this as a new closest hit that have found
                     closestColliderDistance = hit.distance;
                     closestCollider = hit.collider;
                     hitInfo = hit;
