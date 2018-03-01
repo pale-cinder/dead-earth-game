@@ -82,6 +82,7 @@ public abstract class AIZombieState : AIState
                 }
 
             }
+
             else
                 if (other.CompareTag ("Flash Light") && curType != AITargetType.Visual_Player)
             {
@@ -92,6 +93,17 @@ public abstract class AIZombieState : AIState
 
                 // Calcalate the world space z of the box
                 float zSize = flashLightTrigger.size.z * flashLightTrigger.transform.lossyScale.z;
+
+
+                // Calculate if zombie is react on this. (different zombies has different sight, ex: Zombie reaction varies depands if zombie is feading now, his intelange)
+                float aggFactor = distanceToThreat / zSize;
+                
+                if (aggFactor <= _zombieStateMachine.sight && aggFactor <= _zombieStateMachine.intelligence)
+                {
+                    _zombieStateMachine.VisualThreat.Set(AITargetType.Visual_Light, other, other.transform.position, distanceToThreat);
+
+                }
+
 
             }
 
