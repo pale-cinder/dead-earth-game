@@ -7,7 +7,7 @@ public abstract class AIZombieState : AIState
 
     protected int _playerLayerMask = -1;
     protected int _bodyPartLayer = -1;
-
+    protected AIZombieStateMachine _zombieStateMachine = null;
 
 
 
@@ -23,6 +23,19 @@ public abstract class AIZombieState : AIState
 
 
 
+    public override void SetStateMachine(AIStateMachine stateMachene)
+    {
+        // Safety check
+        if (_stateMachine.GetType () == typeof (AIZombieStateMachine))
+        {
+            base.SetStateMachine(stateMachene);
+            _zombieStateMachine = (AIZombieStateMachine)stateMachene;
+
+        }
+    }
+
+
+
 
 
     // Identify different threats
@@ -31,30 +44,39 @@ public abstract class AIZombieState : AIState
     {
 
         // base.OnTriggerEvent(eventType, other);
-
-        if (_stateMachine == null)
+        // If we dont have the parent state machine 
+        if (_zombieStateMachine == null)
             return;
 
+
+        // Step in and process if the event is an enter
         if (eventType != AITargetEventType.Exit)
         {
-            AITargetType curType = _stateMachine.VisualThreat.type;
+            // What the type of the stored current event? 
+            AITargetType curType = _zombieStateMachine.VisualThreat.type;
 
             // If it's not a player, examing the tag
 
+        // If the entered collider is a Player
         if (other.CompareTag ("Player") )
             {
                 // Calculate the distance from the zombie to the player,
                 // sensorPosition - mesure the distance from the sensor from the heat not from the feet
                 // --> store. Check if we store the player.
-                float distance = Vector3.Distance(_stateMachine.sensorPosition, other.transform.position);
+
+                // Get distance from the sensor to the collider
+                float distance = Vector3.Distance(_zombieStateMachine.sensorPosition, other.transform.position);
+
+                //If the current stored - is not a Player or if the Player is closer than a player previusly stored as a visual threat -->
                 if  (curType != AITargetType.Visual_Player ||
-                             (curType == AITargetType.Visual_Player && distance < _stateMachine.VisualThreat.distance))
+                             (curType == AITargetType.Visual_Player && distance < _zombieStateMachine.VisualThreat.distance))
                 {
+                    // Is the collider within a view cone
                     RaycastHit hitInfo;
                     if (ColliderIsVisible (other, out hitInfo, _playerLayerMask))
                     {
                         // Set as a new visual target
-                        _stateMachine.VisualThreat.Set(AITargetType.Visual_Player, other, other.transform.position, distance);
+                        _zombieStateMachine.VisualThreat.Set(AITargetType.Visual_Player, other, other.transform.position, distance);
                     }
 
                 }
@@ -79,10 +101,7 @@ public abstract class AIZombieState : AIState
         hitInfo = new RaycastHit();
 
         // State Machine sets
-        if (_stateMachine == null || _stateMachine.GetType()!=typeof(AIZombieStateMachine) ) 
-            return false;
-                
-        AIZombieStateMachine zombieMachine = (AIZombieStateMachine)_stateMachine;
+        if (_zombieStateMachine == null) false
 
 
         // Calculate the angle between the sensor origin anf the direction of the collider
@@ -92,11 +111,11 @@ public abstract class AIZombieState : AIState
 
 
         // If the angle is greater than half of fov then it is outside the view cone ---> return false (no visability)
-        if (angle > zombieMachine.fov * 0.5f)
+        if (angle > _zombieStateMachine.fov * 0.5f)
             return false;
 
         // Return all of hits 
-        RaycastHit[] hits = Physics.RaycastAll(head, direction.normalized, _stateMachine.sensorRadius * zombieMachine.sight, layerMask);
+        RaycastHit[] hits = Physics.RaycastAll(head, direction.normalized, _zombieStateMachine.sensorRadius * _zombieStateMachine.sight, layerMask);
 
         // Find the closesr collider that is not the AIs own body part
         float closestColliderDistance = float.MaxValue;

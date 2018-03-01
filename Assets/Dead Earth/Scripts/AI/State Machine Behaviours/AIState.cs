@@ -3,7 +3,8 @@ using UnityEngine;
 
 public abstract class AIState : MonoBehaviour
 {
-    public void SetStateMachine (AIStateMachine stateMachene) { _stateMachine = stateMachene; }
+    // Called by the parent state machine to assign to its reference
+    public virtual void SetStateMachine (AIStateMachine stateMachene) { _stateMachine = stateMachene; }
 
     //public abstract AIStateType GetStateType;
 
