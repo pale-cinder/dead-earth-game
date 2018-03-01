@@ -7,6 +7,7 @@ TagManager:
   - AI Sound Emitter
   - AI Visual
   - AI Food
+  - Flash Light
   layers:
   - Default
   - TransparentFX

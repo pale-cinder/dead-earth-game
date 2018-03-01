@@ -82,8 +82,18 @@ public abstract class AIZombieState : AIState
                 }
 
             }
+            else
+                if (other.CompareTag ("Flash Light") && curType != AITargetType.Visual_Player)
+            {
+                BoxCollider flashLightTrigger = (BoxCollider)other;
 
+                // Distance 
+                float distanceToThreat = Vector3.Distance(_zombieStateMachine.sensorPosition, flashLightTrigger.transform.position);
 
+                // Calcalate the world space z of the box
+                float zSize = flashLightTrigger.size.z * flashLightTrigger.transform.lossyScale.z;
+
+            }
 
         }
     }
@@ -101,7 +111,7 @@ public abstract class AIZombieState : AIState
         hitInfo = new RaycastHit();
 
         // State Machine sets
-        if (_zombieStateMachine == null) false
+        if (_zombieStateMachine == null) return false;
 
 
         // Calculate the angle between the sensor origin anf the direction of the collider
