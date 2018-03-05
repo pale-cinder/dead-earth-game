@@ -104,9 +104,23 @@ public abstract class AIZombieState : AIState
 
                 }
 
-
             }
 
+        else 
+                if (other.CompareTag ("AI Sound Emmiter"))
+            {
+                // Take Collider --> then cast it to Sphere Collider
+                SphereCollider soundTrigger = (SphereCollider) other;
+                if (soundTrigger == null)
+                    return;
+
+                // Get the possition of the Agent Sensor
+                Vector3 agentSensorPossition = _zombieStateMachine.sensorPosition;
+
+                // Mesure possition berween sensor possition and the source of the thread
+
+
+            }
         }
     }
 
