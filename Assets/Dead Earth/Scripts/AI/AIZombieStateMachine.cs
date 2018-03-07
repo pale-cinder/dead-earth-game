@@ -16,11 +16,13 @@ public class AIZombieStateMachine : AIStateMachine
     [SerializeField] [Range(0.0f, 1.0f)] float _intelligence = 0.5f;
     [SerializeField] [Range(0.0f, 1.0f)] float _satisfaction = 1.0f;
 
+
     // Set by states and serialize at state machine
     private int _seeking = 0;
     private bool _feeding = false;
     private bool _crawling = false;
     private int _attackType = 0;
+    private float _speed = 0.0f;
 
 
     // Hashes
@@ -43,9 +45,10 @@ public class AIZombieStateMachine : AIStateMachine
     public bool feeding { get { return _feeding; } set { _feeding = value; } }
     public int seeking { get { return _seeking; } set { _seeking = value; } }
     public float speed
+
     {
-        get { return _navAgent != null ? _navAgent.speed : 0.0f; }
-        set { if (_navAgent != null) _navAgent.speed = value; }
+        get { return speed; }
+        set { _speed = value; }
     }
 
 
@@ -56,7 +59,7 @@ public class AIZombieStateMachine : AIStateMachine
 
         if (_animator!=null)
         {
-            _animator.SetFloat(_speedHash, _navAgent.speed);
+            _animator.SetFloat(_speedHash, _speed);
             _animator.SetBool(_feedingHash, _feeding);
             _animator.SetInteger(_seekingHash, _seeking);
             _animator.SetInteger(_attackHash, _attackType);
