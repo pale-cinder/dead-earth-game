@@ -7,6 +7,7 @@ public abstract class AIZombieState : AIState
 
     protected int _playerLayerMask = -1;
     protected int _bodyPartLayer = -1;
+    protected int _visualLayerMask = -1;
     protected AIZombieStateMachine _zombieStateMachine = null;
 
 
@@ -15,6 +16,8 @@ public abstract class AIZombieState : AIState
     {
         // Get a mask. (+1) hack = default layer
         _playerLayerMask = LayerMask.GetMask("Player", "AI Body Part")+1;
+
+        _visualLayerMask = LayerMask.GetMask("Player", "AI Body Part", "Visual Aggravator") + 1;
 
         // Get the layer index of the AI Body Part layer
         _bodyPartLayer = LayerMask.NameToLayer("AI Body Part");
@@ -119,8 +122,57 @@ public abstract class AIZombieState : AIState
 
                 // Mesure possition berween sensor possition and the source of the thread
 
+                Vector3 soundPos;
+                float soundRadius;
+                AIState.ConvertSphereColliderToWorldSpace(soundTrigger, out soundPos, out soundRadius);
+
+                // How far inside the saouns's radius we are
+                float distanceToThreat = (soundPos - agentSensorPossition).magnitude;
+
+                // Create distance factor. When zombie is inside the factor. Zombies hearing
+                float distanceFactor = (distanceToThreat / soundRadius);
+
+                // The factor based on  hearing ability of Agent
+                distanceFactor += distanceFactor * (1.0f - _zombieStateMachine.hearing);
+
+                // Too far away
+                if (distanceFactor > 1.0f)
+                    return;
+
+                // If we can hear it and it is closer then what we previously have stored
+                if (distanceToThreat <_zombieStateMachine.AudioThreat.distance)
+                {
+                    // The most dangerous Audio Thread
+                    _zombieStateMachine.AudioThreat.Set (AITargetType.Audio, other, soundPos, distanceToThreat);
+
+                }
 
             }
+
+        else
+                // Register the closest virtual threat (if the threaf is food and zombie is hungry (satisfaction less then 90%
+                if ( other.CompareTag ("AI Food") && curType != AITargetType.Visual_Player && 
+                                                                curType != AITargetType.Visual_Light && 
+                                                                _zombieStateMachine.satisfaction <= 0.9f &&
+                                                                _zombieStateMachine.AudioThreat.type == AITargetType.None) 
+            {
+                // How far is this threat from us
+                float distanceToThreat = Vector3.Distance(other.transform.position, _zombieStateMachine.sensorPosition);
+
+                // If the distance is smaller then current visual threat
+                if (distanceToThreat<_zombieStateMachine.VisualThreat.distance)
+                {
+                    // If yes then check our fov within the range of AI sight
+                    RaycastHit hitInfo;
+                    if (ColliderIsVisible (other, out hitInfo, _visualLayerMask))
+                    {
+                        // This is the best target so far
+                        _zombieStateMachine.VisualThreat.Set(AITargetType.Visual_Food, other, other.transform.position, distanceToThreat);
+
+                    }
+                }
+            }
+
         }
     }
 

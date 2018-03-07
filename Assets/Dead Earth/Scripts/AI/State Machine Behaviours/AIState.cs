@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using UnityEngine;
 
+
+// Base class of all AI States used by AI System
 public abstract class AIState : MonoBehaviour
 {
     // Called by the parent state machine to assign to its reference
@@ -44,7 +46,7 @@ public abstract class AIState : MonoBehaviour
 
     }
 
-    // Convert the passed sphere collider's pos and radius into world space taking into acount hierarchical scaling
+    // Convert the passed sphere collider's position and radius into world space taking into acount hierarchical scaling
     public static void ConvertSphereColliderToWorldSpace (SphereCollider col, out Vector3 pos, out float radius)
     {
         pos = Vector3.zero;
