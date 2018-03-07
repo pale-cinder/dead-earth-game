@@ -2233,6 +2233,7 @@ GameObject:
   - component: {fileID: 819018104}
   - component: {fileID: 819018106}
   - component: {fileID: 819018107}
+  - component: {fileID: 819018108}
   m_Layer: 8
   m_Name: AI Entity
   m_TagString: Untagged
@@ -2345,6 +2346,17 @@ MonoBehaviour:
   _health: 100
   _intelligence: 0.5
   _satisfaction: 1
+--- !u!114 &819018108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 819018101}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e5735169700c7c4cb293446ee180ea0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &821024701
 GameObject:
   m_ObjectHideFlags: 0
