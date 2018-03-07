@@ -26,13 +26,13 @@ public abstract class AIZombieState : AIState
 
 
 
-    public override void SetStateMachine(AIStateMachine stateMachene)
+    public override void SetStateMachine(AIStateMachine stateMachine)
     {
         // Safety check
-        if (_stateMachine.GetType () == typeof (AIZombieStateMachine))
+        if (stateMachine.GetType () == typeof (AIZombieStateMachine))
         {
-            base.SetStateMachine(stateMachene);
-            _zombieStateMachine = (AIZombieStateMachine)stateMachene;
+            base.SetStateMachine(stateMachine);
+            _zombieStateMachine = (AIZombieStateMachine)stateMachine;
 
         }
     }
