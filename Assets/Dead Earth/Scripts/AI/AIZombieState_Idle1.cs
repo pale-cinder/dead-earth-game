@@ -15,7 +15,7 @@ public class AIZombieState_Idle1 : AIZombieState
     public override AIStateType GetStateType()
     {
 
-        
+
 
         return AIStateType.Idle;
 
@@ -41,19 +41,68 @@ public class AIZombieState_Idle1 : AIZombieState
         _zombieStateMachine.seeking = 0;
         _zombieStateMachine.feeding = false;
         _zombieStateMachine.attackType = 0;
-        _zombieStateMachine.ClearTarget ();
+        _zombieStateMachine.ClearTarget();
 
         _zombieStateMachine.ClearTarget();
-        
+
     }
 
+    // Called by the State Machine each time
     public override AIStateType OnUpdate()
     {
 
+        // Examing the visual threat and checking if this is the most damgerous threat  for the player
+        if (_zombieStateMachine == null)
+            return AIStateType.Idle;
+
+        if (_zombieStateMachine.VisualThreat.type == AITargetType.Visual_Player)
+        {
+            // Call target trigger to be placed
+            _zombieStateMachine.SetTarget(_zombieStateMachine.VisualThreat);
+            return AIStateType.Pursuit;
+
+            // When the zombie sees the players light
+            if (_zombieStateMachine.VisualThreat.type == AITargetType.Visual_Light)
+            {
+                // It is in front of the zombie.
+                // If the player didnt visible and it is the light -->
+                // Zombie starting to run to the side where the light comes from
+                _zombieStateMachine.SetTarget(_zombieStateMachine.VisualThreat);
+                return AIStateType.Alerted;
+            }
+
+            if (_zombieStateMachine.AudioThreat.type == AITargetType.Audio)
+            {
+                // The sounds goes on
+                _zombieStateMachine.SetTarget(_zombieStateMachine.AudioThreat);
+                return AIStateType.Alerted;
+            }
+
+            if (_zombieStateMachine.VisualThreat.type == AITargetType.Visual_Food)
+            {
+                _zombieStateMachine.SetTarget(_zombieStateMachine.VisualThreat);
+                return AIStateType.Pursuit;
+
+            }
+
+            _timer += Time.deltaTime;
+
+            if (_timer > _idleTime)
+            {
+
+                Debug.Log("Going to Patrol");
+                return AIStateType.Patrol;
+            }
 
 
-        return AIStateType.Idle;
+
+
+            return AIStateType.Idle;
+
+        }
 
     }
+
+
 
 }
