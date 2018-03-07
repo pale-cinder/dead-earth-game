@@ -47,6 +47,7 @@ public class AIZombieState_Idle1 : AIZombieState
 
     }
 
+
     // Called by the State Machine each time
     public override AIStateType OnUpdate()
     {
@@ -55,11 +56,12 @@ public class AIZombieState_Idle1 : AIZombieState
         if (_zombieStateMachine == null)
             return AIStateType.Idle;
 
-        if (_zombieStateMachine.VisualThreat.type == AITargetType.Visual_Player)
-        {
+            if (_zombieStateMachine.VisualThreat.type == AITargetType.Visual_Player)
+            {
             // Call target trigger to be placed
             _zombieStateMachine.SetTarget(_zombieStateMachine.VisualThreat);
             return AIStateType.Pursuit;
+            }
 
             // When the zombie sees the players light
             if (_zombieStateMachine.VisualThreat.type == AITargetType.Visual_Light)
@@ -99,10 +101,9 @@ public class AIZombieState_Idle1 : AIZombieState
 
             return AIStateType.Idle;
 
-        }
+        
 
     }
-
-
-
 }
+
+
