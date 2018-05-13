@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine.AI;
 
 public enum AIStateType { None, Idle, Alerted, Patrol, Attack, Feeding, Pursuit, Dead }
-public enum AITargetType { None, Waypoint, Visual_Player, Visual_Light, Visual_Food, Audio }
+public enum AITargetType { None, Waypoints, Visual_Player, Visual_Light, Visual_Food, Audio }
 public enum AITargetEventType { Enter, Stay, Exit }
 
 public struct AITarget
