@@ -33,16 +33,19 @@ public class AIZombieState_Idle1 : AIZombieState
         if (_zombieStateMachine == null)
             return;
 
+        // Set the idle time 
+
         _idleTime = Random.Range(_idleTimeRange.x, _idleTimeRange.y);
         _timer = 0.0f;
+
+        // Configure the State Machine
 
         _zombieStateMachine.NavAgentControl(true, false);
         _zombieStateMachine.speed = 0;
         _zombieStateMachine.seeking = 0;
         _zombieStateMachine.feeding = false;
         _zombieStateMachine.attackType = 0;
-        _zombieStateMachine.ClearTarget();
-
+       
         _zombieStateMachine.ClearTarget();
 
     }
