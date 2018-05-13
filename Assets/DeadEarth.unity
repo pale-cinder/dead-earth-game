@@ -2234,6 +2234,7 @@ GameObject:
   - component: {fileID: 819018106}
   - component: {fileID: 819018107}
   - component: {fileID: 819018108}
+  - component: {fileID: 819018109}
   m_Layer: 8
   m_Name: AI Entity
   m_TagString: Untagged
@@ -2358,6 +2359,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _idleTimeRange: {x: 5, y: 10}
+--- !u!114 &819018109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 819018101}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 808342987f956e44fb0ef8a47662fa3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  aIWaypointNetwork: {fileID: 1823156822}
 --- !u!1 &821024701
 GameObject:
   m_ObjectHideFlags: 0

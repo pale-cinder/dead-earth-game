@@ -2,15 +2,22 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AIZombieState_Patrol1 : MonoBehaviour {
+public class AIZombieState_Patrol1 : AIZombieState
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+{
+    [SerializeField] AIWaypointNetwork aIWaypointNetwork = null;
+
+    // Inspector assighn
+    public override AIStateType GetStateType()
+    {
+        return AIStateType.Patrol;
+
+    }
+
+    public override AIStateType OnUpdate()
+    {
+        return AIStateType.Patrol;
+    }
+
+
 }
